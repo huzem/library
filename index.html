@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dijital Kütüphane</title>
+
+<style>
+:root{
+  --bordo:#7a0c18;
+  --bordo2:#9c1a2b;
+  --bg:#f4f4f4;
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:"Segoe UI",sans-serif;
+}
+
+body{
+  background:var(--bg);
+  user-select:none; /* metin seçmeyi engeller */
+}
+
+/* HEADER */
+header{
+  background:linear-gradient(90deg,var(--bordo),var(--bordo2));
+  color:white;
+  padding:16px 20px;
+  text-align:center;
+  letter-spacing:.5px;
+}
+
+.header-top{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+  flex-wrap:wrap;
+}
+
+.header-top img{
+  height:60px;
+}
+
+.header-title{
+  font-size:24px;
+  font-weight:bold;
+}
+
+.header-subtitle{
+  font-size:16px;
+  margin-top:4px;
+  font-weight:500;
+}
+
+/* TAM SAYFA KİTAPLIK */
+.library{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+  gap:30px;
+  padding:40px;
+}
+
+/* KİTAP KART */
+.book{
+  background:white;
+  border-radius:12px;
+  padding:12px;
+  cursor:pointer;
+  transition:.3s;
+  box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+.book:hover{
+  transform:translateY(-8px) scale(1.03);
+  box-shadow:0 10px 25px rgba(0,0,0,0.2);
+}
+
+.book img{
+  width:100%;
+  height:220px;
+  object-fit:cover;
+  border-radius:8px;
+}
+
+.book-title{
+  margin-top:8px;
+  font-weight:600;
+  font-size:15px;
+  text-align:center;
+}
+
+.book-author{
+  font-size:12px;
+  color:#666;
+  text-align:center;
+}
+
+/* MODAL VIEWER */
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.9);
+  display:none;
+  flex-direction:column;
+}
+
+.modal-header{
+  background:var(--bordo);
+  color:white;
+  padding:12px 20px;
+  font-size:16px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.close-btn{
+  background:white;
+  border:none;
+  padding:6px 12px;
+  font-weight:bold;
+  cursor:pointer;
+  border-radius:6px;
+}
+
+.viewer{
+  flex:1;
+  display:flex;
+}
+
+.viewer iframe{
+  width:100%;
+  border:none;
+  pointer-events:auto;
+}
+
+/* SAĞ TIK ENGELLEME */
+iframe, img {
+  -webkit-user-drag: none;
+  user-drag: none;
+}
+</style>
+</head>
+<body oncontextmenu="return false">
+
+<header>
+  <div class="header-top">
+    <img src="https://hitit.edu.tr/images/HititLogoYeni.svg" alt="Hitit Üniversitesi Logo">
+    <div>
+      <div class="header-title">Uzaktan Eğitim Uygulama ve Araştırma Merkezi (HUZEM)</div>
+      <div class="header-subtitle">Kaynak Kütüphanesi</div>
+    </div>
+  </div>
+</header>
+
+<div class="library" id="library"></div>
+
+<!-- MODAL PDF VIEWER -->
+<div class="modal" id="modal">
+  <div class="modal-header">
+    <span id="modalTitle">Kitap</span>
+    <button class="close-btn" onclick="closeViewer()">Kapat</button>
+  </div>
+  <div class="viewer">
+    <!-- download toolbar olmaması için #toolbar=0 -->
+    <iframe id="pdfFrame" src=""></iframe>
+  </div>
+</div>
+
+<script>
+// Kitap listesi
+const books = [
+  {
+    title:"Modül 1: Yapay Zekâ ve Eğitim",
+    author:"HUZEM",
+    cover:"kapaklar/ai1.png",
+    file:"kitaplar/ai1.pdf"
+  },
+  {
+    title:"Modül 2: Yükseköğretimde Yapay Zekâ Destekli Öğretim",
+    author:"HUZEM",
+    cover:"kapaklar/ai2.png",
+    file:"kitaplar/ai2.pdf"
+  },
+  {
+    title:"Modül 3: Yükseköğretimde Kullanılabilecek Yapay Zekâ Uygulamaları",
+    author:"HUZEM",
+    cover:"kapaklar/ai3.png",
+    file:"kitaplar/ai3.pdf"
+  },
+    {
+    title:"Modül 4: Yükseköğretimde Yapay Zekâ Araçlarının Öğretim Uygulamalarına Entegrasyonu",
+    author:"HUZEM",
+    cover:"kapaklar/ai4.png",
+    file:"kitaplar/ai4.pdf"
+  },
+    {
+    title:"Modül 1: Ölçme ve Değerlendirmede Temel Kavramlar",
+    author:"HUZEM",
+    cover:"kapaklar/ytd1.png",
+    file:"kitaplar/ytd1.pdf"
+  },
+
+      {
+    title:"Modül 2: Yeterlilik ve Performans Temelli Ölçme-Değerlendirmeye Giriş",
+    author:"HUZEM",
+    cover:"kapaklar/ytd2.png",
+    file:"kitaplar/ytd2.pdf"
+  },
+
+        {
+    title:"Modül 3: Yeterlilik Temelli Ölçme-Değerlendirme Yöntemleri, Stratejileri ve Puanlama Araçları",
+    author:"HUZEM",
+    cover:"kapaklar/ytd3.png",
+    file:"kitaplar/ytd3.pdf"
+  },
+
+        {
+    title:"Modül 4: Performans Değerlendirmede Etkili ve Nitelikli Geribildirim Verme Rehberi",
+    author:"HUZEM",
+    cover:"kapaklar/ytd4.png",
+    file:"kitaplar/ytd4.pdf"
+  },
+
+        {
+    title:"Modül 5: Eğitici Eğitimleri Sonucunda Birimlerden Gelen Uygulama Örnekleri",
+    author:"HUZEM",
+    cover:"kapaklar/ytd5.png",
+    file:"kitaplar/ytd5.pdf"
+  },
+];
+
+const library = document.getElementById("library");
+const modal = document.getElementById("modal");
+const frame = document.getElementById("pdfFrame");
+const title = document.getElementById("modalTitle");
+
+books.forEach((b,i)=>{
+  const el = document.createElement("div");
+  el.className="book";
+  el.innerHTML=`
+    <img src="${b.cover}">
+    <div class="book-title">${b.title}</div>
+    <div class="book-author">${b.author}</div>
+  `;
+  el.onclick=()=>openBook(i);
+  library.appendChild(el);
+});
+
+function openBook(i){
+  const b=books[i];
+  title.textContent=b.title+" - "+b.author;
+
+  /* toolbar=0 => indirme/print gizlenir */
+  frame.src=b.file+"#toolbar=0&navpanes=0&scrollbar=0";
+  modal.style.display="flex";
+}
+
+function closeViewer(){
+  modal.style.display="none";
+  frame.src="";
+}
+
+/* Klavye kopyalama engelleme */
+document.addEventListener("keydown",function(e){
+  if(e.ctrlKey && (e.key==="c" || e.key==="s" || e.key==="u" || e.key==="p")){
+    e.preventDefault();
+  }
+});
+</script>
+
+</body>
+</html>

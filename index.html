@@ -210,14 +210,17 @@ header{
     border: 1px solid rgba(0,0,0,0.2);
 }
 
-/* WATERMARK */
+/* WATERMARK (Her zaman sabit görünen filigran) */
 .watermark-overlay {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    pointer-events: none;
-    z-index: 999; /* Linklerin üstüne çıkmasın ama görünür olsun */
+    position: fixed; /* 'absolute' yerine 'fixed' yaparak ekrana sabitledik */
+    top: 60px;       /* Header'ın altında başlaması için (Header yüksekliğine göre ayarlayın) */
+    left: 0; 
+    right: 0; 
+    bottom: 0;
+    pointer-events: none; /* Linklere tıklamayı engellemez, sadece üstte görünür */
+    z-index: 1000;       /* Her şeyin (PDF sayfalarının ve linklerin) en üstünde durması için */
     overflow: hidden;
-    opacity: 0.1;
+    opacity: 0.1;        /* Görünürlük derecesi */
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='150px' width='150px'><text transform='translate(20, 100) rotate(-45)' fill='white' font-size='20' font-family='Arial'>HUZEM KOPYALANAMAZ</text></svg>");
 }
 

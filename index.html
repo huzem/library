@@ -3,7 +3,12 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Dijital Kütüphane</title>
+<title>Dijital Kütüphane - HUZEM</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+</script>
 
 <style>
 :root{
@@ -21,7 +26,10 @@
 
 body{
   background:var(--bg);
-  user-select:none; /* metin seçmeyi engeller */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none; 
 }
 
 /* HEADER */
@@ -56,7 +64,7 @@ header{
   font-weight:500;
 }
 
-/* TAM SAYFA KİTAPLIK */
+/* KÜTÜPHANE IZGARASI */
 .library{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
@@ -64,7 +72,6 @@ header{
   padding:40px;
 }
 
-/* KİTAP KART */
 .book{
   background:white;
   border-radius:12px;
@@ -99,13 +106,40 @@ header{
   text-align:center;
 }
 
-/* MODAL VIEWER */
+/* MODAL & PDF GÖRÜNTÜLEYİCİ */
 .modal{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,0.9);
+  background:rgba(0,0,0,0.95);
   display:none;
   flex-direction:column;
+  z-index: 9999;
+}
+
+.modal-content {
+  display: flex;
+  flex: 1;
+  gap: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.pdf-viewer-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.comments-sidebar {
+  width: 380px;
+  background: white;
+  border-left: 2px solid var(--bordo);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
 }
 
 .modal-header{
@@ -116,6 +150,7 @@ header{
   display:flex;
   justify-content:space-between;
   align-items:center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
 }
 
 .close-btn{
@@ -125,23 +160,199 @@ header{
   font-weight:bold;
   cursor:pointer;
   border-radius:6px;
+  color: var(--bordo);
 }
 
-.viewer{
-  flex:1;
-  display:flex;
+/* PDF CONTAINER */
+.viewer-container {
+    flex: 1;
+    overflow-y: auto;
+    background: #525659;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    position: relative;
+    min-height: 0;
 }
 
-.viewer iframe{
-  width:100%;
-  border:none;
-  pointer-events:auto;
+/* SAYFA YAPISI (Canvas + Link Katmanı için Wrapper) */
+.page-wrapper {
+    position: relative; /* Linklerin buna göre konumlanması için şart */
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
 }
 
-/* SAĞ TIK ENGELLEME */
-iframe, img {
+/* Canvas (Görüntü) */
+.pdf-page-canvas {
+    display: block;
+    max-width: 100%;
+    pointer-events: none; /* Resmi seçmeyi engelle */
+}
+
+/* Link Katmanı */
+.link-layer {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    /* Renk yok, tamamen şeffaf */
+}
+
+/* Link Kutucukları */
+.pdf-link {
+    position: absolute;
+    cursor: pointer;
+    background: rgba(255, 255, 0, 0); /* Görünmez */
+    transition: background 0.2s;
+}
+/* Üzerine gelince belli olsun isterseniz açabilirsiniz: */
+.pdf-link:hover {
+    background: rgba(255, 255, 0, 0.2); 
+    border: 1px solid rgba(0,0,0,0.2);
+}
+
+/* WATERMARK */
+.watermark-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    z-index: 999; /* Linklerin üstüne çıkmasın ama görünür olsun */
+    overflow: hidden;
+    opacity: 0.1;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='150px' width='150px'><text transform='translate(20, 100) rotate(-45)' fill='white' font-size='20' font-family='Arial'>HUZEM KOPYALANAMAZ</text></svg>");
+}
+
+.loading {
+    color: white;
+    font-size: 18px;
+    margin-top: 50px;
+    font-weight: bold;
+}
+
+/* SAĞ TIK VE SÜRÜKLEME ENGELİ */
+img, canvas, .viewer-container {
   -webkit-user-drag: none;
   user-drag: none;
+}
+
+/* YORUM SİSTEMİ */
+.comments-section {
+  display: none;
+}
+
+.comments-sidebar {
+  padding: 15px;
+  background: white;
+  border-left: 2px solid var(--bordo);
+  display: flex;
+  flex-direction: column;
+}
+
+.comment-action-btn {
+  background: var(--bordo);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: 0.3s;
+}
+
+.comment-action-btn:hover {
+  background: var(--bordo2);
+  transform: translateY(-2px);
+}
+
+.comment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid var(--bordo);
+}
+
+.comment-form input,
+.comment-form textarea {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.comment-form textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.comment-form button {
+  background: var(--bordo);
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.comment-form button:hover {
+  background: var(--bordo2);
+}
+
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.comment-item {
+  background: #f5f5f5;
+  padding: 12px;
+  border-radius: 6px;
+  border-left: 3px solid var(--bordo);
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.comment-author {
+  font-weight: 600;
+  color: var(--bordo);
+  font-size: 14px;
+}
+
+.comment-text {
+  margin: 8px 0;
+  color: #333;
+  font-size: 14px;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+.comment-date {
+  font-size: 12px;
+  color: #999;
+}
+
+.comments-loading {
+  text-align: center;
+  color: #999;
+  font-size: 14px;
+  padding: 20px;
 }
 </style>
 </head>
@@ -159,20 +370,29 @@ iframe, img {
 
 <div class="library" id="library"></div>
 
-<!-- MODAL PDF VIEWER -->
 <div class="modal" id="modal">
   <div class="modal-header">
-    <span id="modalTitle">Kitap</span>
+    <span id="modalTitle">Kitap Okuyucu</span>
     <button class="close-btn" onclick="closeViewer()">Kapat</button>
   </div>
-  <div class="viewer">
-    <!-- download toolbar olmaması için #toolbar=0 -->
-    <iframe id="pdfFrame" src=""></iframe>
+  
+  <div class="modal-content">
+    <div class="pdf-viewer-section">
+      <div class="viewer-container" id="pdfContainer">
+        <div id="loadingText" class="loading">Kitap Yükleniyor...</div>
+        <div class="watermark-overlay"></div>
+      </div>
+    </div>
+
+    <div class="comments-sidebar" id="commentsSection">
+      <h3 style="color: var(--bordo); margin-bottom: 12px; padding: 15px 15px 0 15px; font-size: 16px;">💬 Yorum</h3>
+      
+      <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSey6PHs6VUzsog_8-mWaszOlSGWyb7bi64Szra7p0VodsJm7A/viewform?embedded=true" width="100%" height="900" frameborder="0" marginheight="0" marginwidth="0" style="border: none; flex-shrink: 0;">Yükleniyor…</iframe>
+    </div>
   </div>
 </div>
 
 <script>
-// Kitap listesi
 const books = [
   {
     title:"Modül 1: Yapay Zekâ ve Eğitim",
@@ -204,29 +424,25 @@ const books = [
     cover:"kapaklar/ytd1.png",
     file:"kitaplar/ytd1.pdf"
   },
-
-      {
+  {
     title:"Modül 2: Yeterlilik ve Performans Temelli Ölçme-Değerlendirmeye Giriş",
     author:"HUZEM",
     cover:"kapaklar/ytd2.png",
     file:"kitaplar/ytd2.pdf"
   },
-
-        {
+  {
     title:"Modül 3: Yeterlilik Temelli Ölçme-Değerlendirme Yöntemleri, Stratejileri ve Puanlama Araçları",
     author:"HUZEM",
     cover:"kapaklar/ytd3.png",
     file:"kitaplar/ytd3.pdf"
   },
-
-        {
+  {
     title:"Modül 4: Performans Değerlendirmede Etkili ve Nitelikli Geribildirim Verme Rehberi",
     author:"HUZEM",
     cover:"kapaklar/ytd4.png",
     file:"kitaplar/ytd4.pdf"
   },
-
-        {
+  {
     title:"Modül 5: Eğitici Eğitimleri Sonucunda Birimlerden Gelen Uygulama Örnekleri",
     author:"HUZEM",
     cover:"kapaklar/ytd5.png",
@@ -236,40 +452,285 @@ const books = [
 
 const library = document.getElementById("library");
 const modal = document.getElementById("modal");
-const frame = document.getElementById("pdfFrame");
+const pdfContainer = document.getElementById("pdfContainer");
 const title = document.getElementById("modalTitle");
+const loadingText = document.getElementById("loadingText");
 
 books.forEach((b,i)=>{
   const el = document.createElement("div");
   el.className="book";
   el.innerHTML=`
-    <img src="${b.cover}">
+    <img src="${b.cover}" onerror="this.src='https://via.placeholder.com/160x220?text=Kapak+Yok'">
     <div class="book-title">${b.title}</div>
     <div class="book-author">${b.author}</div>
   `;
-  el.onclick=()=>openBook(i);
+  el.onclick=()=>loadPDF(b);
   library.appendChild(el);
 });
 
-function openBook(i){
-  const b=books[i];
-  title.textContent=b.title+" - "+b.author;
+async function loadPDF(book) {
+    modal.style.display = "flex";
+    title.textContent = book.title;
+    loadingText.style.display = "block";
+    
+    // Yorumlar için kitap bilgisini kaydet
+    currentBook = book;
+    
+    // Eski sayfaları temizle (wrapper'ları siliyoruz)
+    const oldPages = document.querySelectorAll('.page-wrapper');
+    oldPages.forEach(el => el.remove());
 
-  /* toolbar=0 => indirme/print gizlenir */
-  frame.src=b.file+"#toolbar=0&navpanes=0&scrollbar=0";
-  modal.style.display="flex";
+    try {
+        const loadingTask = pdfjsLib.getDocument(book.file);
+        const pdf = await loadingTask.promise;
+        
+        loadingText.style.display = "none";
+
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+            const page = await pdf.getPage(pageNum);
+            const scale = 1.5;
+            const viewport = page.getViewport({ scale: scale });
+
+            // 1. Wrapper Oluştur (Canvas + Linkler bunun içinde duracak)
+            const wrapper = document.createElement("div");
+            wrapper.className = "page-wrapper";
+            wrapper.style.width = viewport.width + "px";
+            wrapper.style.height = viewport.height + "px";
+
+            // 2. Canvas Oluştur
+            const canvas = document.createElement("canvas");
+            canvas.className = "pdf-page-canvas";
+            const context = canvas.getContext("2d");
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            // 3. Link Katmanı Oluştur
+            const linkLayer = document.createElement("div");
+            linkLayer.className = "link-layer";
+
+            // 4. Sayfadaki Linkleri Bul ve Ekle
+            const annotations = await page.getAnnotations();
+            
+            annotations.forEach(annotation => {
+                if (annotation.subtype === 'Link' && annotation.url) {
+                    // PDF koordinatlarını Canvas koordinatlarına çevir
+                    // rect: [x_min, y_min, x_max, y_max] (PDF koordinat sistemi)
+                    // Viewport bu çeviriyi bizim için yapar
+                    const rect = viewport.convertToViewportRectangle(annotation.rect);
+                    
+                    // rect dizisinden CSS pozisyonlarını hesapla
+                    // convertToViewportRectangle sonrası: [x1, y1, x2, y2]
+                    // Genelde [left, bottom, right, top] şeklinde döner (Canvas'ta Y ekseni terstir)
+                    
+                    // En güvenli koordinat hesaplama (Normalize etme):
+                    const x = Math.min(rect[0], rect[2]);
+                    const y = Math.min(rect[1], rect[3]); // Y ekseninde en üst nokta (küçük olan)
+                    const width = Math.abs(rect[2] - rect[0]);
+                    const height = Math.abs(rect[3] - rect[1]);
+
+                    const link = document.createElement("a");
+                    link.href = annotation.url;
+                    link.target = "_blank"; // Yeni sekmede aç
+                    link.className = "pdf-link";
+                    link.title = annotation.url; // Üzerine gelince link görünsün
+                    
+                    link.style.left = x + "px";
+                    link.style.top = y + "px";
+                    link.style.width = width + "px";
+                    link.style.height = height + "px";
+
+                    linkLayer.appendChild(link);
+                }
+            });
+
+            // Elemanları birleştir
+            wrapper.appendChild(canvas);
+            wrapper.appendChild(linkLayer);
+            
+            // Container'a ekle
+            pdfContainer.appendChild(wrapper);
+
+            // Render işlemi (Asenkron)
+            const renderContext = {
+                canvasContext: context,
+                viewport: viewport
+            };
+            await page.render(renderContext).promise;
+        }
+    } catch (error) {
+        console.error("PDF Hatası:", error);
+        loadingText.textContent = "PDF yüklenemedi. Dosya yolunu kontrol edin.";
+    }
 }
 
 function closeViewer(){
   modal.style.display="none";
-  frame.src="";
 }
 
-/* Klavye kopyalama engelleme */
-document.addEventListener("keydown",function(e){
-  if(e.ctrlKey && (e.key==="c" || e.key==="s" || e.key==="u" || e.key==="p")){
-    e.preventDefault();
+// ==================== YORUM SİSTEMİ (LocalStorage + JSON) ====================
+let currentBook = null;
+let allComments = [];
+let commentsRefreshInterval = null;
+
+const commentText = document.getElementById("commentText");
+if (commentText) {
+  commentText.addEventListener("input", function() {
+    const remaining = 500 - this.value.length;
+    document.getElementById("charCount").textContent = remaining;
+  });
+}
+
+function showViewComments() {
+  document.getElementById("commentsView").style.display = "block";
+  document.getElementById("commentForm").style.display = "none";
+  loadAllComments();
+  
+  // Arkaplanda her 3 saniyede JSON'u refresh et
+  if (commentsRefreshInterval) clearInterval(commentsRefreshInterval);
+  commentsRefreshInterval = setInterval(() => {
+    if (document.getElementById("commentsView").style.display === "block") {
+      loadAllComments();
+    }
+  }, 3000);
+}
+
+function showWriteComment() {
+  document.getElementById("commentForm").style.display = "block";
+  document.getElementById("commentsView").style.display = "none";
+  document.getElementById("commentName").focus();
+}
+
+function hideComments() {
+  document.getElementById("commentsView").style.display = "none";
+  document.getElementById("commentForm").style.display = "none";
+  if (commentsRefreshInterval) clearInterval(commentsRefreshInterval);
+}
+
+async function loadAllComments() {
+  const commentsList = document.getElementById("commentsList");
+
+  try {
+    // JSON dosyasından yorumları fetch et
+    const response = await fetch('comments.json');
+    const jsonData = await response.json();
+    
+    // localStorage'deki yorumları al
+    const localComments = JSON.parse(localStorage.getItem('comments') || '[]');
+    
+    // Kitab için filtrelenmiş yorumları birleştir
+    const bookKey = currentBook.file.replace(/\//g, '_').replace(/\./g, '_');
+    const jsonCommentsForBook = (jsonData.comments || []).filter(c => c.bookKey === bookKey);
+    const localCommentsForBook = localComments.filter(c => c.bookKey === bookKey);
+    
+    allComments = [...jsonCommentsForBook, ...localCommentsForBook].sort((a, b) => {
+      return new Date(b.date || b.timestamp) - new Date(a.date || a.timestamp);
+    });
+
+    if (allComments.length === 0) {
+      if (commentsList.innerHTML !== '<div class="comments-loading">Henüz yorum yapılmamış. İlk yorum siz yapın!</div>') {
+        commentsList.innerHTML = '<div class="comments-loading">Henüz yorum yapılmamış. İlk yorum siz yapın!</div>';
+      }
+      return;
+    }
+
+    commentsList.innerHTML = '';
+    allComments.forEach(comment => {
+      const commentEl = document.createElement('div');
+      commentEl.className = 'comment-item';
+      
+      const dateStr = new Date(comment.date || comment.timestamp).toLocaleString('tr-TR');
+      const badge = comment.isLocal ? ' <span style="background: #fff3cd; color: #856404; font-size: 11px; padding: 2px 6px; border-radius: 3px; margin-left: 8px;">Yerel</span>' : '';
+      
+      commentEl.innerHTML = `
+        <div class="comment-author">${comment.author || 'Anonim'}${badge}</div>
+        <div class="comment-text">${escapeHtml(comment.text)}</div>
+        <div class="comment-date">${dateStr}</div>
+      `;
+      
+      commentsList.appendChild(commentEl);
+    });
+  } catch (error) {
+    const commentsList = document.getElementById("commentsList");
+    commentsList.innerHTML = '<div class="comments-loading">⚠️ Yorumlar yüklenemedi (comments.json dosyası bulunamadı)</div>';
+    console.error('Yorum yükleme hatası:', error);
   }
+}
+
+function postComment() {
+  const nameInput = document.getElementById("commentName");
+  const textInput = document.getElementById("commentText");
+  
+  const author = nameInput.value.trim() || "Anonim";
+  const text = textInput.value.trim();
+
+  if (!text) {
+    alert("Lütfen bir yorum yazın!");
+    return;
+  }
+
+  if (text.length > 500) {
+    alert("Yorum en fazla 500 karakter olmalı!");
+    return;
+  }
+
+  try {
+    const bookKey = currentBook.file.replace(/\//g, '_').replace(/\./g, '_');
+    const newComment = {
+      bookKey: bookKey,
+      author: author,
+      text: text,
+      timestamp: new Date().toISOString(),
+      date: new Date().toLocaleString('tr-TR'),
+      isLocal: true
+    };
+
+    // localStorage'e ekle
+    const comments = JSON.parse(localStorage.getItem('comments') || '[]');
+    comments.push(newComment);
+    localStorage.setItem('comments', JSON.stringify(comments));
+
+    // Formu temizle
+    textInput.value = '';
+    nameInput.value = '';
+    document.getElementById("charCount").textContent = '500';
+
+    alert("✅ Yorum kaydedildi!");
+    
+    // Otomatik "Yorumları Gör" açıl
+    showViewComments();
+  } catch (error) {
+    alert("Yorum kaydedilemedi: " + error.message);
+    console.error('Yorum gönderme hatası:', error);
+  }
+}
+
+function escapeHtml(text) {
+  const map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+  return text.replace(/[&<>"']/g, m => map[m]);
+}
+// ==================== YORUM SİSTEMİ END ====================
+
+
+
+// Güvenlik Kısıtlamaları (Aynen devam)
+document.addEventListener('contextmenu', event => event.preventDefault());
+
+document.addEventListener("keydown", function(e){
+    if (e.ctrlKey && (e.key === 'c' || e.key === 's' || e.key === 'p' || e.key === 'u' || e.key === 'a')) {
+        e.preventDefault();
+        return false;
+    }
+    if (e.key === "PrintScreen") {
+        navigator.clipboard.writeText("");
+        modal.style.display = 'none';
+        setTimeout(() => { modal.style.display = 'flex'; }, 500);
+    }
 });
 </script>
 

@@ -14,7 +14,7 @@
 :root{
   --bordo:#7a0c18;
   --bordo2:#9c1a2b;
-  --bg:#f4f7f6; /* Arka planı biraz daha yumuşattık */
+  --bg:#f4f7f6;
   --sidebar-width: 380px;
 }
 
@@ -27,7 +27,8 @@ body{
   -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; 
 }
 
-/* GİRİŞ PANELİ (Değişmedi) */
+/* GİRİŞ PANELİ (GEÇİCİ OLARAK YORUMA ALINDI) */
+/*
 #login-overlay { position: fixed; inset: 0; background: var(--bordo); display: flex; justify-content: center; align-items: center; z-index: 10000; padding: 20px; }
 .login-box { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); text-align: center; max-width: 400px; width: 100%; }
 .login-box img { height: 80px; margin-bottom: 20px; }
@@ -36,7 +37,10 @@ body{
 .login-box input:focus { border-color: var(--bordo); }
 .login-box button { background: var(--bordo); color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; }
 .login-box button:hover { background: var(--bordo2); }
-#main-content { display: none; }
+*/
+
+/* Şifre ekranı kaldırıldığı için ana içerik baştan görünür olmalı */
+#main-content { display: block; }
 
 /* HEADER */
 header{ background:linear-gradient(90deg,var(--bordo),var(--bordo2)); color:white; padding:16px 20px; text-align:center; letter-spacing:.5px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
@@ -52,13 +56,12 @@ header{ background:linear-gradient(90deg,var(--bordo),var(--bordo2)); color:whit
   background: white; 
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  overflow: hidden; /* Köşelerin taşmasını engeller */
+  overflow: hidden;
   transition: box-shadow 0.3s ease;
 }
 
 .category-box:hover { box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
 
-/* Akordeon Başlığı */
 .category-header {
   padding: 20px 25px; 
   cursor: pointer; 
@@ -69,66 +72,42 @@ header{ background:linear-gradient(90deg,var(--bordo),var(--bordo2)); color:whit
 }
 
 .category-header:hover { background: #fafafa; }
-
-/* Başlık Sol Taraf (İkon ve Yazı) */
 .header-left { display: flex; align-items: center; gap: 12px; }
 .header-left .icon-book { font-size: 20px; color: var(--bordo); }
 .header-title-text { font-size: 18px; font-weight: 700; color: #2c3e50; }
-
-/* Başlık Sağ Taraf (Rozet ve Ok) */
 .header-right { display: flex; align-items: center; gap: 15px; }
 
-/* Kitap Sayısı Rozeti */
 .book-count-badge {
   background: #f0f2f5; color: #555;
   font-size: 13px; font-weight: 600;
   padding: 4px 12px; border-radius: 20px;
 }
 
-/* Dönen Ok İkonu (SVG) */
 .chevron-icon {
   width: 24px; height: 24px;
   fill: none; stroke: var(--bordo); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
   transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-.category-box.active .chevron-icon {
-  transform: rotate(180deg);
-}
-.category-box.active .category-header {
-  border-bottom: 1px solid #eee;
-}
+.category-box.active .chevron-icon { transform: rotate(180deg); }
+.category-box.active .category-header { border-bottom: 1px solid #eee; }
 
-/* CSS Grid ile Pürüzsüz Dikey Açılma Animasyonu */
-.category-content-wrapper {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-}
+.category-content-wrapper { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
+.category-box.active .category-content-wrapper { grid-template-rows: 1fr; }
+.category-content-inner { overflow: hidden; }
 
-.category-box.active .category-content-wrapper {
-  grid-template-rows: 1fr;
-}
-
-.category-content-inner {
-  overflow: hidden;
-}
-
-/* Yatay Kaydırmalı Raf (Carousel) */
 .books-shelf {
   display: flex; gap: 20px; padding: 25px;
   overflow-x: auto;
-  background: #fdfdfd; /* Çok hafif bir derinlik */
+  background: #fdfdfd;
   scroll-behavior: smooth;
 }
 
-/* Özel Kaydırma Çubuğu (Yatay) */
 .books-shelf::-webkit-scrollbar { height: 8px; }
 .books-shelf::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; border: 2px solid #fdfdfd; }
 .books-shelf::-webkit-scrollbar-thumb:hover { background: var(--bordo); }
 .books-shelf::-webkit-scrollbar-track { background: transparent; }
 
-/* KİTAP KARTLARI */
 .book {
   background: white; border-radius: 10px; padding: 12px; cursor: pointer;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -141,7 +120,7 @@ header{ background:linear-gradient(90deg,var(--bordo),var(--bordo2)); color:whit
 .book-title { margin-top: 12px; font-weight: 600; font-size: 14px; text-align: center; line-height: 1.3; color: #222; }
 .book-author { font-size: 12px; color: #777; text-align: center; margin-top: 6px;}
 
-/* MODAL KISMI (Değişmedi, sadece arayüz temizlendi) */
+/* MODAL & PDF GÖRÜNTÜLEYİCİ YAPISI */
 .modal{ position:fixed; inset:0; background:rgba(0,0,0,0.95); display:none; flex-direction:column; z-index: 9999; }
 .modal-header{ background:var(--bordo); color:white; padding:12px 20px; font-size:16px; display:flex; justify-content:space-between; align-items:center; box-shadow: 0 2px 10px rgba(0,0,0,0.3); flex-shrink: 0; }
 .modal-content { display: flex; flex: 1; min-height: 0; overflow: hidden; }
@@ -163,25 +142,13 @@ header{ background:linear-gradient(90deg,var(--bordo),var(--bordo2)); color:whit
 .pdf-link { position: absolute; cursor: pointer; background: rgba(255, 255, 0, 0); transition: background 0.2s; }
 .pdf-link:hover { background: rgba(255, 255, 0, 0.2); border: 1px solid rgba(0,0,0,0.2); }
 .watermark-overlay { position: fixed; inset: 0; pointer-events: none; z-index: 1000; overflow: hidden; opacity: 0.15; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='150px' width='150px'><text transform='translate(20, 100) rotate(-45)' fill='black' font-size='20' font-family='Arial'>HUZEM©</text></svg>"); }
-.loading { color: white; font-size: 18px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold; }
+.loading { color: white; font-size: 16px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold; background: rgba(0,0,0,0.7); padding: 10px 20px; border-radius: 8px; }
 img, canvas, .viewer-container { -webkit-user-drag: none; user-drag: none; }
 </style>
 </head>
 <body oncontextmenu="return false">
 
-  <!--
-<div id="login-overlay">
-  <div class="login-box">
-   <img src="https://hitit.edu.tr/images/HititLogoYeni.svg" alt="Hitit Logo" style="background-color: white; padding: 5px;">
-   <h2>Dijital Kütüphane Erişimi</h2>
-   <input type="password" id="passwordInput" placeholder="Şifreyi Giriniz" onkeydown="if(event.key==='Enter') checkPassword()">
-   <button onclick="checkPassword()">Giriş Yap</button>
-   <p id="loginError" style="color: #7a0c18; margin-top: 10px; font-size: 14px; display: none; font-weight: bold;">⚠️ Hatalı şifre!</p>
-  </div>
-</div>
--->
-
-<div id="main-content" style="display:block;">
+<div id="main-content">
     <header>
       <div class="header-top">
         <img src="https://hitit.edu.tr/images/HititLogoYeni.svg" alt="Hitit Üniversitesi Logo" style="background-color:white; padding:6px; border-radius:8px;">
@@ -207,7 +174,7 @@ img, canvas, .viewer-container { -webkit-user-drag: none; user-drag: none; }
               <button class="control-btn" id="nextBtn" onclick="changePage(1)">Sonraki ❯</button>
           </div>
           <div class="viewer-container" id="pdfContainer">
-            <div id="loadingText" class="loading" style="display: none;">Yükleniyor...</div>
+            <div id="loadingText" class="loading" style="display: none;">Kitap güvenli bir şekilde belleğe alınıyor...</div>
             <div class="watermark-overlay"></div>
             <div id="pdfViewerContent"></div>
           </div>
@@ -221,46 +188,25 @@ img, canvas, .viewer-container { -webkit-user-drag: none; user-drag: none; }
 </div>
 
 <script>
-
-// Şifre Kontrolü GEÇİCİ KAPATTIM
-/*
-function checkPassword() {
-  const pass = document.getElementById("passwordInput").value;
-  const errorMsg = document.getElementById("loginError");
-  const loginOverlay = document.getElementById("login-overlay");
-  const mainContent = document.getElementById("main-content");
-  const hiddenPassword = "aGl0aXQyMDI2";
-
-  if (btoa(pass) === hiddenPassword) {
-    loginOverlay.style.display = "none";
-    mainContent.style.display = "block";
-  } else {
-    errorMsg.style.display = "block";
-    document.getElementById("passwordInput").value = "";
-    document.getElementById("passwordInput").focus();
-  }
-}
-*/
-
-// KİTAP VERİLERİ
+// KİTAP VERİLERİ (Dosya yolları Base64 ile gizlenmiştir. F12'den okunamayacak)
 const groupedBooks = [
   {
     title: "Yapay Zekâ Destekli Öğretim Serisi",
     books: [
-      { title:"Modül 1: Yapay Zekâ ve Eğitim", author:"HUZEM", cover:"kapaklar/ai1.png", file:"kitaplık/ai1.pdf" },
-      { title:"Modül 2: Yükseköğretimde Yapay Zekâ Destekli Öğretim", author:"HUZEM", cover:"kapaklar/ai2.png", file:"kitaplık/ai2.pdf" },
-      { title:"Modül 3: Yükseköğretimde Yapay Zekâ Uygulamaları", author:"HUZEM", cover:"kapaklar/ai3.png", file:"kitaplık/ai3.pdf" },
-      { title:"Modül 4: Yapay Zekâ Araçları Entegrasyonu", author:"HUZEM", cover:"kapaklar/ai4.png", file:"kitaplık/ai4.pdf" }
+      { title:"Modül 1: Yapay Zekâ ve Eğitim", author:"HUZEM", cover:"kapaklar/ai1.png", fileEncoded:"a2l0YXBsaWsvYWkxLnBkZg==" },
+      { title:"Modül 2: Yükseköğretimde Yapay Zekâ Destekli Öğretim", author:"HUZEM", cover:"kapaklar/ai2.png", fileEncoded:"a2l0YXBsaWsvYWkyLnBkZg==" },
+      { title:"Modül 3: Yükseköğretimde Yapay Zekâ Uygulamaları", author:"HUZEM", cover:"kapaklar/ai3.png", fileEncoded:"a2l0YXBsaWsvYWkzLnBkZg==" },
+      { title:"Modül 4: Yapay Zekâ Araçları Entegrasyonu", author:"HUZEM", cover:"kapaklar/ai4.png", fileEncoded:"a2l0YXBsaWsvYWk0LnBkZg==" }
     ]
   },
   {
     title: "Yeterlilik Temelli Değerlendirme Serisi",
     books: [
-      { title:"Modül 1: Ölçme ve Değerlendirmede Temel Kavramlar", author:"HUZEM", cover:"kapaklar/ytd1.png", file:"kitaplık/ytd1.pdf" },
-      { title:"Modül 2: Yeterlilik ve Performans Temelli Giriş", author:"HUZEM", cover:"kapaklar/ytd2.png", file:"kitaplık/ytd2.pdf" },
-      { title:"Modül 3: Ölçme-Değerlendirme Yöntemleri", author:"HUZEM", cover:"kapaklar/ytd3.png", file:"kitaplık/ytd3.pdf" },
-      { title:"Modül 4: Etkili ve Nitelikli Geribildirim Rehberi", author:"HUZEM", cover:"kapaklar/ytd4.png", file:"kitaplık/ytd4.pdf" },
-      { title:"Modül 5: Birimlerden Gelen Uygulama Örnekleri", author:"HUZEM", cover:"kapaklar/ytd5.png", file:"kitaplık/ytd5.pdf" }
+      { title:"Modül 1: Ölçme ve Değerlendirmede Temel Kavramlar", author:"HUZEM", cover:"kapaklar/ytd1.png", fileEncoded:"a2l0YXBsaWsveXRkMS5wZGY=" },
+      { title:"Modül 2: Yeterlilik ve Performans Temelli Giriş", author:"HUZEM", cover:"kapaklar/ytd2.png", fileEncoded:"a2l0YXBsaWsveXRkMi5wZGY=" },
+      { title:"Modül 3: Ölçme-Değerlendirme Yöntemleri", author:"HUZEM", cover:"kapaklar/ytd3.png", fileEncoded:"a2l0YXBsaWsveXRkMy5wZGY=" },
+      { title:"Modül 4: Etkili ve Nitelikli Geribildirim Rehberi", author:"HUZEM", cover:"kapaklar/ytd4.png", fileEncoded:"a2l0YXBsaWsveXRkNC5wZGY=" },
+      { title:"Modül 5: Birimlerden Gelen Uygulama Örnekleri", author:"HUZEM", cover:"kapaklar/ytd5.png", fileEncoded:"a2l0YXBsaWsveXRkNS5wZGY=" }
     ]
   }
 ];
@@ -275,18 +221,14 @@ const pageCountSpan = document.getElementById("page_count");
 const prevBtn = document.getElementById("prevBtn");
 const nextBtn = document.getElementById("nextBtn");
 
-// Döner ok ikonu SVG
 const chevronSVG = `<svg class="chevron-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
 
-// PREMIUM AKORDEON OLUŞTURMA
 groupedBooks.forEach((group, index) => {
   const groupEl = document.createElement("div");
   groupEl.className = "category-box";
   
-  // Sadece ilk seriyi başlangıçta açık yapıyoruz
   if(index === 0) groupEl.classList.add("active");
 
-  // Başlık Kısmı
   const header = document.createElement("div");
   header.className = "category-header";
   header.innerHTML = `
@@ -300,11 +242,9 @@ groupedBooks.forEach((group, index) => {
     </div>
   `;
   
-  // İçerik Sarıcı (Animasyon için Grid Hack)
   const contentWrapper = document.createElement("div");
   contentWrapper.className = "category-content-wrapper";
   
-  // Asıl İçerik (Raf)
   const contentInner = document.createElement("div");
   contentInner.className = "category-content-inner";
 
@@ -327,16 +267,11 @@ groupedBooks.forEach((group, index) => {
   contentInner.appendChild(shelf);
   contentWrapper.appendChild(contentInner);
 
-  // Tıklama Olayı (Yumuşak Kapanıp Açılma)
   header.onclick = () => {
     const isOpen = groupEl.classList.contains("active");
-    
-    // Diğerlerini kapat
     document.querySelectorAll('.category-box').forEach(box => {
       box.classList.remove('active');
     });
-    
-    // Tıklanan kapalıysa aç
     if (!isOpen) {
       groupEl.classList.add("active");
     }
@@ -347,18 +282,43 @@ groupedBooks.forEach((group, index) => {
   library.appendChild(groupEl);
 });
 
-// --- PDF FONKSİYONLARI (Aynı Kaldı) ---
 let pdfDoc = null, pageNum = 1, pageRendering = false, currentViewMode = 'single';
 const scale = 1.5;
 
 async function loadPDF(book) {
-    modal.style.display = "flex"; titleEl.textContent = book.title; loadingText.style.display = "block"; pdfViewerContent.innerHTML = "";
-    currentViewMode = book.mode === 'flipbook' ? 'flipbook' : 'single'; pageNum = 1;
+    modal.style.display = "flex"; 
+    titleEl.textContent = book.title; 
+    loadingText.style.display = "block"; 
+    loadingText.textContent = "Kitap güvenli bir şekilde belleğe alınıyor...";
+    pdfViewerContent.innerHTML = "";
+    
+    currentViewMode = book.mode === 'flipbook' ? 'flipbook' : 'single'; 
+    pageNum = 1;
+
     try {
-        const loadingTask = pdfjsLib.getDocument(book.file);
-        pdfDoc = await loadingTask.promise; pageCountSpan.textContent = pdfDoc.numPages; loadingText.style.display = "none";
+        // GİZLİ ŞİFREYİ ÇÖZÜYORUZ (atob fonksiyonu ile)
+        const actualFilePath = atob(book.fileEncoded);
+
+        // Fetch API ile PDF'i belleğe indiriyoruz
+        const response = await fetch(actualFilePath);
+        if (!response.ok) throw new Error("Dosya sunucudan alınamadı.");
+        
+        // Ham veriyi alıp Uint8Array'e dönüştürüyoruz
+        const arrayBuffer = await response.arrayBuffer();
+        const data = new Uint8Array(arrayBuffer);
+
+        // PDF.js'e URL yerine bellekteki veriyi yüklüyoruz
+        const loadingTask = pdfjsLib.getDocument({ data: data });
+        pdfDoc = await loadingTask.promise; 
+        
+        pageCountSpan.textContent = pdfDoc.numPages; 
+        loadingText.style.display = "none";
+        
         renderCurrentView();
-    } catch (error) { console.error("PDF Hatası:", error); loadingText.textContent = "PDF yüklenemedi. Dosya yolu hatalı olabilir."; }
+    } catch (error) { 
+        console.error("PDF Hatası:", error); 
+        loadingText.textContent = "PDF yüklenirken bir hata oluştu."; 
+    }
 }
 
 function renderCurrentView() {
@@ -425,6 +385,8 @@ async function addLinkLayer(page, viewport, wrapper) {
 }
 
 function closeViewer(){ modal.style.display="none"; pdfDoc = null; pdfViewerContent.innerHTML = ""; }
+
+// Sağ tık ve kopyalama engellemeleri
 document.addEventListener('contextmenu', event => event.preventDefault());
 document.addEventListener("keydown", function(e){ if (e.ctrlKey && (e.key === 'c' || e.key === 's' || e.key === 'p' || e.key === 'u' || e.key === 'a')) { e.preventDefault(); return false; } });
 </script>

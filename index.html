@@ -27,18 +27,6 @@ body{
   -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; 
 }
 
-/* GİRİŞ PANELİ (GEÇİCİ OLARAK YORUMA ALINDI) */
-/*
-#login-overlay { position: fixed; inset: 0; background: var(--bordo); display: flex; justify-content: center; align-items: center; z-index: 10000; padding: 20px; }
-.login-box { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); text-align: center; max-width: 400px; width: 100%; }
-.login-box img { height: 80px; margin-bottom: 20px; }
-.login-box h2 { color: var(--bordo); margin-bottom: 20px; font-size: 20px; }
-.login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #ddd; border-radius: 8px; outline: none; font-size: 16px; text-align: center; }
-.login-box input:focus { border-color: var(--bordo); }
-.login-box button { background: var(--bordo); color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; }
-.login-box button:hover { background: var(--bordo2); }
-*/
-
 /* Şifre ekranı kaldırıldığı için ana içerik baştan görünür olmalı */
 #main-content { display: block; }
 
@@ -174,7 +162,7 @@ img, canvas, .viewer-container { -webkit-user-drag: none; user-drag: none; }
               <button class="control-btn" id="nextBtn" onclick="changePage(1)">Sonraki ❯</button>
           </div>
           <div class="viewer-container" id="pdfContainer">
-            <div id="loadingText" class="loading" style="display: none;">Kitap güvenli bir şekilde belleğe alınıyor...</div>
+            <div id="loadingText" class="loading" style="display: none;">Kitap güvenli bir şekilde yükleniyor...</div>
             <div class="watermark-overlay"></div>
             <div id="pdfViewerContent"></div>
           </div>
@@ -189,24 +177,25 @@ img, canvas, .viewer-container { -webkit-user-drag: none; user-drag: none; }
 
 <script>
 // KİTAP VERİLERİ (Dosya yolları Base64 ile gizlenmiştir. F12'den okunamayacak)
+// "kitaplık" klasörü (Türkçe ı harfi) baz alınarak şifrelenmiştir.
 const groupedBooks = [
   {
     title: "Yapay Zekâ Destekli Öğretim Serisi",
     books: [
-      { title:"Modül 1: Yapay Zekâ ve Eğitim", author:"HUZEM", cover:"kapaklar/ai1.png", fileEncoded:"a2l0YXBsaWsvYWkxLnBkZg==" },
-      { title:"Modül 2: Yükseköğretimde Yapay Zekâ Destekli Öğretim", author:"HUZEM", cover:"kapaklar/ai2.png", fileEncoded:"a2l0YXBsaWsvYWkyLnBkZg==" },
-      { title:"Modül 3: Yükseköğretimde Yapay Zekâ Uygulamaları", author:"HUZEM", cover:"kapaklar/ai3.png", fileEncoded:"a2l0YXBsaWsvYWkzLnBkZg==" },
-      { title:"Modül 4: Yapay Zekâ Araçları Entegrasyonu", author:"HUZEM", cover:"kapaklar/ai4.png", fileEncoded:"a2l0YXBsaWsvYWk0LnBkZg==" }
+      { title:"Modül 1: Yapay Zekâ ve Eğitim", author:"HUZEM", cover:"kapaklar/ai1.png", fileEncoded:"a2l0YXBsxLFrL2FpMS5wZGY=" },
+      { title:"Modül 2: Yükseköğretimde Yapay Zekâ Destekli Öğretim", author:"HUZEM", cover:"kapaklar/ai2.png", fileEncoded:"a2l0YXBsxLFrL2FpMi5wZGY=" },
+      { title:"Modül 3: Yükseköğretimde Yapay Zekâ Uygulamaları", author:"HUZEM", cover:"kapaklar/ai3.png", fileEncoded:"a2l0YXBsxLFrL2FpMy5wZGY=" },
+      { title:"Modül 4: Yapay Zekâ Araçları Entegrasyonu", author:"HUZEM", cover:"kapaklar/ai4.png", fileEncoded:"a2l0YXBsxLFrL2FpNC5wZGY=" }
     ]
   },
   {
     title: "Yeterlilik Temelli Değerlendirme Serisi",
     books: [
-      { title:"Modül 1: Ölçme ve Değerlendirmede Temel Kavramlar", author:"HUZEM", cover:"kapaklar/ytd1.png", fileEncoded:"a2l0YXBsaWsveXRkMS5wZGY=" },
-      { title:"Modül 2: Yeterlilik ve Performans Temelli Giriş", author:"HUZEM", cover:"kapaklar/ytd2.png", fileEncoded:"a2l0YXBsaWsveXRkMi5wZGY=" },
-      { title:"Modül 3: Ölçme-Değerlendirme Yöntemleri", author:"HUZEM", cover:"kapaklar/ytd3.png", fileEncoded:"a2l0YXBsaWsveXRkMy5wZGY=" },
-      { title:"Modül 4: Etkili ve Nitelikli Geribildirim Rehberi", author:"HUZEM", cover:"kapaklar/ytd4.png", fileEncoded:"a2l0YXBsaWsveXRkNC5wZGY=" },
-      { title:"Modül 5: Birimlerden Gelen Uygulama Örnekleri", author:"HUZEM", cover:"kapaklar/ytd5.png", fileEncoded:"a2l0YXBsaWsveXRkNS5wZGY=" }
+      { title:"Modül 1: Ölçme ve Değerlendirmede Temel Kavramlar", author:"HUZEM", cover:"kapaklar/ytd1.png", fileEncoded:"a2l0YXBsxLFrL3l0ZDEucGRm" },
+      { title:"Modül 2: Yeterlilik ve Performans Temelli Giriş", author:"HUZEM", cover:"kapaklar/ytd2.png", fileEncoded:"a2l0YXBsxLFrL3l0ZDIucGRm" },
+      { title:"Modül 3: Ölçme-Değerlendirme Yöntemleri", author:"HUZEM", cover:"kapaklar/ytd3.png", fileEncoded:"a2l0YXBsxLFrL3l0ZDMucGRm" },
+      { title:"Modül 4: Etkili ve Nitelikli Geribildirim Rehberi", author:"HUZEM", cover:"kapaklar/ytd4.png", fileEncoded:"a2l0YXBsxLFrL3l0ZDQucGRm" },
+      { title:"Modül 5: Birimlerden Gelen Uygulama Örnekleri", author:"HUZEM", cover:"kapaklar/ytd5.png", fileEncoded:"a2l0YXBsxLFrL3l0ZDUucGRm" }
     ]
   }
 ];
@@ -289,26 +278,18 @@ async function loadPDF(book) {
     modal.style.display = "flex"; 
     titleEl.textContent = book.title; 
     loadingText.style.display = "block"; 
-    loadingText.textContent = "Kitap güvenli bir şekilde belleğe alınıyor...";
+    loadingText.textContent = "Kitap güvenli bir şekilde yükleniyor...";
     pdfViewerContent.innerHTML = "";
     
     currentViewMode = book.mode === 'flipbook' ? 'flipbook' : 'single'; 
     pageNum = 1;
 
     try {
-        // GİZLİ ŞİFREYİ ÇÖZÜYORUZ (atob fonksiyonu ile)
-        const actualFilePath = atob(book.fileEncoded);
+        // GİZLİ ŞİFREYİ ÇÖZÜYORUZ (Türkçe karakterleri bozmayan UTF-8 çözümleyici eklendi)
+        const actualFilePath = decodeURIComponent(escape(atob(book.fileEncoded)));
 
-        // Fetch API ile PDF'i belleğe indiriyoruz
-        const response = await fetch(actualFilePath);
-        if (!response.ok) throw new Error("Dosya sunucudan alınamadı.");
-        
-        // Ham veriyi alıp Uint8Array'e dönüştürüyoruz
-        const arrayBuffer = await response.arrayBuffer();
-        const data = new Uint8Array(arrayBuffer);
-
-        // PDF.js'e URL yerine bellekteki veriyi yüklüyoruz
-        const loadingTask = pdfjsLib.getDocument({ data: data });
+        // Fetch yerine doğrudan PDF.js'in kendi güvenilir getDocument mekanizmasını kullanıyoruz
+        const loadingTask = pdfjsLib.getDocument(actualFilePath);
         pdfDoc = await loadingTask.promise; 
         
         pageCountSpan.textContent = pdfDoc.numPages; 
@@ -317,7 +298,7 @@ async function loadPDF(book) {
         renderCurrentView();
     } catch (error) { 
         console.error("PDF Hatası:", error); 
-        loadingText.textContent = "PDF yüklenirken bir hata oluştu."; 
+        loadingText.textContent = "PDF yüklenemedi. Lütfen klasör ve dosya yolunu kontrol edin."; 
     }
 }
 
